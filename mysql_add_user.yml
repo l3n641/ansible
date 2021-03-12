@@ -1,0 +1,36 @@
+---
+    - hosts: "{{host}}"
+      user: root
+      become: yes
+      become_method: sudo
+      become_user: root
+      gather_facts: no
+   
+      tasks:
+        - name: 安装阿里源
+          command: wget -O /etc/yum.repos.d/CentOS-Base.repo "http://mirrors.aliyun.com/repo/Centos-7.repo"
+
+
+        - name: install epel
+          yum: name=epel-release state=latest
+        
+        - name: install python pip2
+          yum: name=python-pip 
+
+        - name: 更新pip2
+          command: pip install --upgrade pip
+        
+        - name: pip install pkg with requirements
+          pip: name=PyMySQL
+          
+        - name: 创建mysql账号
+          mysql_user:
+            login_host: "127.0.0.1"
+            login_user: root
+            login_password: "{{ login_password }}"
+            login_port: "3306"
+            name: "{{ user_name }}"
+            password: "{{ password }}"
+            host: "%"
+            priv: "*.*:ALL,GRANT"
+            state: "present"
